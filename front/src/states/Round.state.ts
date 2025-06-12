@@ -5,7 +5,7 @@ import { Websocket } from "@/services/ws";
 
 
 interface RoundActions {
-  initGame: (id: string) => Promise<void>;
+  initGame: (id: string, token: string) => Promise<void>;
   setStage: (stage: RoundStage) => void;
   increaseScore: () => void;
   getRoundStats: (id: string) => void;
@@ -14,6 +14,7 @@ interface RoundActions {
 };
 
 interface RoundState {
+  userId: string;
   round: IRound;
   stage: RoundStage;
   timeOffset: number;
@@ -24,19 +25,21 @@ interface RoundState {
 
 const useRoundStore = create<RoundState>((set, get) => ({
   round: null,
+  userId: null,
   stage: null,
   timeOffset: 0,
   score: 0,
   ws: Websocket.getInstance(),
 
   actions: {
-    initGame: async (id: string) => {
+    initGame: async (id: string, token: string) => {
       const ws = get().ws;
+      set({ userId: token });
 
       if (ws.status === WsStatus.Offline) {
         await ws.connect();
 
-        setTimeout(() => get().actions.initGame(id), 1000);
+        setTimeout(() => get().actions.initGame(id, token), 1000);
       }
 
       ws.sendMessage(WsEvents.Round, { action: RoundEvent.GetRoundStats, data: { id } });
@@ -58,11 +61,13 @@ const useRoundStore = create<RoundState>((set, get) => ({
     },
 
     setRound: (data: any) => {
+      const userId = get().userId;
       const currentTime = new Date().getTime();
       const timeOffset = currentTime - data.serverTime;
       const stage = getRoundStage(data.round.startTime, data.round.endTime, timeOffset);
+      const score = data.round.stats.find((s) => s.user.id === userId)?.score || 0;
 
-      set({ round: data.round, timeOffset, stage });
+      set({ round: data.round, timeOffset, stage, score });
     },
 
     setStage: (stage: RoundStage) => {

@@ -50,7 +50,7 @@ export const RoundPage = () => {
   React.useEffect(() => {
     const id = location.pathname.split('/').pop();
 
-    initGame(id);
+    initGame(id, token);
   }, []);
 
 

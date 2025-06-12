@@ -11,8 +11,6 @@ export const LoginPage = () => {
   const token = useAuthToken();
   const error = useAuthError();
 
-  console.log(useAuthActions());
-
   React.useEffect(() => {
     token && navigate('/rounds');
   }, [token]);
