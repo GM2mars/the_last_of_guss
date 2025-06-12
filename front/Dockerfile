@@ -11,6 +11,6 @@ COPY . .
 
 RUN bun run build
 
-EXPOSE 4173
+EXPOSE 3000
 
 CMD ["bun", "run", "preview", "--host", "0.0.0.0"]

@@ -22,7 +22,7 @@ export const FinishedStage = ({ round, userId }: FinishedStageProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="uppercase">{'Active'}</p>
+      <p className="uppercase">{'Finished'}</p>
       <p>Всего: {state?.totalScore}</p>
       <p>Победитель: {state?.winner?.user.username} - {state?.winner?.score}</p>
       <p>Мои очки: {state?.score}</p>

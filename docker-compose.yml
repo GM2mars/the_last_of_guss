@@ -44,9 +44,10 @@ services:
     depends_on:
       - backend
     ports:
-      - "4173:4173"
+      - "3000:3000"
     environment:
-      VITE_API_URL: ${BACKEND_HOST}
+      VITE_API_URL: "${BACKEND_HOST}/api"
+      VITE_API_WS: "${VITE_API_WS}"
     networks:
       - app-network
 
