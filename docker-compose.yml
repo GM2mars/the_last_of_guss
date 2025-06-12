@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: app_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "password"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # Backend
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: app_backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB}"
+      BACKEND_HOST: ${BACKEND_HOST}
+    networks:
+      - app-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: app_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4173:4173"
+    environment:
+      VITE_API_URL: ${BACKEND_HOST}
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+
+networks:
+  app-network:
+    driver: bridge
